@@ -22,8 +22,7 @@ __Development Tasks for Basic POC__
 - Gusto Editorial Assets admin demo
 - Front end RWD Demo
 
-API call specifies a width and a height
-Logic uses existing crops to figure out how best to do that crop to satisfy the dimensions supplied
+API call specifies a width and a height. Logic uses existing crops to figure out how best to do that crop to satisfy the dimensions supplied.
 
 It selects the best crop based on size and ratios.
 Then uses the centre point of the nearest crop for its centre point reference.
@@ -40,4 +39,3 @@ __Feature Backlog__
 __Areas For Further Thought & Definition__
 
 This works OK for editorial assets, and for RWD and for retina images. But how does this work for galleries?
-

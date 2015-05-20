@@ -45,19 +45,25 @@ def prepare_crop(asset, width=None, height=None):
 
 
 def order_crops_by_suitability(asset, width, height):
-	crops = asset.crop_set.all()
-	# stitch the raw image in here too as theb 'default' crop
+	"""
+	WiP
+	"""
+	# stitch the raw image in here too as the 'default' crop
 	# compare all crops, orded them based on variance from dimensions and 
 	# variance from aspect ratio
 	# return an ordered list
-
+	crops = asset.crop_set.all()
 	return crops
 
 def get_crop_props(asset, crops, width, height):
+	"""
+	WiP
+	"""
+	best = crops[0]
 	# the crop might not be bang on for aspect-ratio so we'll have to
 	# use it in a 'fuzzy style'
-	# also, ensure that we don'l't return crop dimensions that try to crop outside the image
-	best = crops[0]
+	# also, ensure that we don't return crop dimensions that try to 
+	# crop outside the image - we'll have to wiggle it...
 	return {
 		'resize_width': best.resize_width,
 		'resize_height': best.resize_height,
