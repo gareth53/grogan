@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+
+<style>
+
+.image_container {
+	position:relative;
+}
+.image_container img {
+	z-index:0;
+}
+.image_mask {
+	background: #999;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom:0;
+	right:0;
+	z-index: 1;
+	opacity:0.5;
+}
+#cropper {
+  position: absolute;
+  top: 0px;
+  left: 0px;		/* TODO: starting points shoulod be calculated
+  					programatically? */
+  width:350px;
+  height:200px;		/* TODO: width/height will be different for each crop */
+
+  border: 1px solid rgb(204, 204, 204);
+  z-index: 2;
+  background-position: 0 0;
+}
+
+</style>
+
+<script>
+var gusto = window.gusto||{};
+gusto.cropper = {
+	asset: {
+        width: 1000,
+        height: 400
+    },
+
+	outputUpdate: function(val) {
+		// TODO = make this reusable for a page with multiple crops
+		var w, h;
+
+		w = val;
+		h = Math.round(this.asset.height * (val / this.asset.width));
+
+		// update form values
+		document.querySelector('#cropwidth').value = w;
+		document.querySelector('#cropheight').value = h;
+
+		//change the image
+		var img = document.querySelector('#displayed_image');
+		new_w = w + 'px';
+		new_h = h + 'px';
+		img.style.width = new_w;
+		img.style.height = new_h;
+
+		// TODO: change the background-image size in the cropper
+		document.querySelector('#cropper').style.backgroundSize = new_w + ' ' + new_h;
+	},
+
+	init: function() {
+		// set up the resize controls
+		var img_wrap = document.querySelector('#image_container');
+		var img = document.querySelector('#displayed_image');
+		var mask = '<div class="image_mask"></div>';
+		var cropper = '<div id="cropper" style="background-image:url('+ img.src +');"></div>';
+
+		img_wrap.innerHTML += mask + cropper;
+
+		// fix min value of resize slider
+		var frame_h = document.querySelector('#cropper').clientHeight;
+		var frame_w = document.querySelector('#cropper').clientWidth;
+		var min_scale = frame_h / gusto.cropper.asset.height;
+		var min_width = Math.ceil(min_scale * gusto.cropper.asset.width)
+		document.querySelector('#zoomer').setAttribute('min', Math.max(frame_w, min_width))
+
+		// add drag event handler
+		this.init_cropper_drag();
+	},
+
+	init_cropper_drag: function() {
+		this.dragging = false;
+		var that = this;
+
+		document.querySelector('#cropper').addEventListener('mousedown', function() {
+			that.dragging = true;
+			// record start click points
+		    var e = window.event;
+
+		    that.posX = e.pageX;
+		    that.posY = e.pageY;
+
+			// where is crop right now?
+			var cropper = document.querySelector('#cropper');
+			that.cropX = cropper.style.left;
+			that.cropY = cropper.style.top;
+			console.log('down');
+		});
+
+		document.addEventListener('mouseup', function() {
+			that.dragging = false;
+			document.querySelector('#cropper').style.borderColor = '#fff';
+			console.log('up');
+		});
+
+	    document.addEventListener('mousemove', function(event) {
+// TODO: could prpobly do with throttling this
+	    	if (gusto.cropper.dragging) {
+				console.log('move');
+	    		var gc = gusto.cropper;
+		        var new_top = gc.cropY - (gc.posY - event.pageY);
+		        var new_left = gc.cropX - (gc.posX - event.pageX);
+		        var crpr = document.querySelector('#cropper').style;
+		        crpr.borderColor = 'red';
+		        crpr.left = new_left + 'px';
+		        crpr.top = new_top + 'px';
+		        crpr.backgroundPosition = -new_left + 'px ' + -new_top + 'px';
+		    }
+        });
+	}
+
+};
+
+window.addEventListener('load', function() {
+	gusto.cropper.init();
+});
+
+</script>
+</head>
+<body>
+
+<h1>Resize</h1>
+<div class="content-main">
+    
+<form action="" method="post">
+
+		<label for="zoom">Zoom</label>
+		<input name="zoom" type="range" min="350" max="1000" value="1024" oninput="gusto.cropper.outputUpdate(value)" id="zoomer">
+		<!--
+		min value is the width of the cropper box
+		 - OR - 
+		the width that would see the image height dip below
+		height of the cropper box.
+		-->
+
+        <input type="text" name="img_id" value="0" />
+
+        <input type="text" name="cropx" value="0" />
+        <input type="text" name="cropy" value="0" />
+        <input type="text" name="cropwidth" value="400" id="cropwidth" />
+        <input type="text" name="cropheight" value="400" id="cropheight" />
+
+    <div class="submit-row">
+        <input type="submit" class="default" value="Save crop" name="save" />
+    </div>
+</form>
+
+    <div id="image_container" class="image_container">
+        <img id="displayed_image" src="http://asset-manager.int.thisisglobal.com/asset_manager/resized/2015/20/queen-prince-harry-geri-halliwell-canvas-1432021740.jpg/1000,400/" width="1000" height="400" alt="" />
+    </div>
+
+</div>
+
+        
+</div>
+</body>
+</html>
