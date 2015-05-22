@@ -1,74 +1,59 @@
-from StringIO import StringIO
-from PIL import Image
-from .models import Asset
+import math
 
-def prepare_crop(asset, width=None, height=None):
-	"""
-	if only one dimension, return original asset resized
-	if no dimensions, return original asset
-	if two dimensions, ah, here comes the magic...
-	"""
-	# convert strings to numbers
-	if width:
-		width = float(width)
-	if height:
-		height = float(height)
-
-	if not width and not height:
-		return asset.image
-
-	image = Image.open(asset.image)
-	asset_w, asset_h = image.size 
-
-	if width and height:
-		crops = order_crops_by_suitability(asset, width, height)
-		crop = get_crop_props(asset, crops, width, height)
-
-		# now do the pillow stuff
-		image = image.resize((crop['resize_width'], crop['resize_height']))
-		cropbox = (crop['crop_left'], crop['crop_top'], crop['crop_right'], crop['crop_bottom'])
-		image = image.crop(box=cropbox)
-
-	else:
-		# TODO: use tjhe crop logic here too...
-		if width and not height:
-			height = (width/asset_w) * asset_h
-		if height and not width:
-			width = (height/asset_h) * asset_w
-		image = image.resize((int(width), int(height)))
-
-	# new return the image as a bytestring
-	image_io = StringIO()
-	image.save(image_io, 'JPEG', quality=70)
-	image_io.seek(0)
-	return image_io
-
-
-def order_crops_by_suitability(asset, width, height):
+def order_crops_by_suitability(crops, width, height):
 	"""
 	WiP
 	"""
-	# stitch the raw image in here too as the 'default' crop
-	# compare all crops, orded them based on variance from dimensions and 
+	# compare all crops, orded them based on
+	# variance from dimensions and 
 	# variance from aspect ratio
 	# return an ordered list
-	crops = asset.crop_set.all()
-	return crops
+	desired_ratio = width / height
+	for crop in crops:
+		# TODO - we probably need to favour aspect ratio a smidge over width...
+		try:
+			crop['ratio_variance'] = abs(1 - desired_ratio / crop['ratio'])
+			crop['width_variance'] = abs(1 - width / crop['width'])
+			crop['total_variance'] = crop['ratio_variance'] + crop['width_variance']
+		except ZeroDivisionError:
+			crop['total_variance'] = 10000000
+	return sorted(crops, key=lambda item: item['total_variance'])
 
-def get_crop_props(asset, crops, width, height):
+def get_crop_props(asset_w, asset_h, crops, width, height):
 	"""
 	WiP
 	"""
-	best = crops[0]
 	# the crop might not be bang on for aspect-ratio so we'll have to
 	# use it in a 'fuzzy style'
 	# also, ensure that we don't return crop dimensions that try to 
 	# crop outside the image - we'll have to wiggle it...
-	return {
-		'resize_width': best.resize_width,
-		'resize_height': best.resize_height,
-		'crop_left': best.crop_left,
-		'crop_top': best.crop_top,
-		'crop_right': best.crop_right,
-		'crop_bottom': best.crop_bottom
-	}
+	for crop in crops:
+		# first convert the resize & crop dimensions to support the new size
+		change = width / crop['width']
+		for key, val in crop.items():
+			crop[key] = math.floor(val * change)
+
+		if crop['resize_height'] < asset_h or crop['resize_width'] < asset_w:
+			continue
+		# find the center point:
+		centre_x = math.floor(crop['crop_left'] + (crop['width'] / 2))
+		centre_y = math.floor(crop['crop_top'] + (crop['height'] / 2))
+
+		# position the new dimensions around the center point
+		crop['crop_left'] = max(0, centre_x - round(width/2))
+		crop['crop_top'] = max(0, centre_x - round(height/2))
+		# adjust for boundaries of image
+		if crop['crop_left'] + width > crop['resize_width']:
+			crop['crop_left'] = crop['resize_width'] - width
+		if crop['crop_top'] + height > crop['resize_height']:
+			crop['crop_top'] = crop['resize_height'] - height
+		# adjust crop_bottom and crop_right, width & height
+		crop['height'] = height
+		crop['width'] = width
+		crop['crop_bottom'] = crop['crop_top'] + height
+		crop['crop_right'] = crop['crop_left'] + width
+		for key, val in crop.items():
+			crop[key] = int(val)
+		return crop
+
+	return None
