@@ -43,6 +43,9 @@ gusto.cropper = {
         height: 400
     },
 
+    posX: 0,
+    posY: 0,
+
 	outputUpdate: function(val) {
 		// TODO = make this reusable for a page with multiple crops
 		var w, h;
@@ -98,25 +101,29 @@ gusto.cropper = {
 		    that.posY = e.pageY;
 
 			// where is crop right now?
-			var cropper = document.querySelector('#cropper');
-			that.cropX = cropper.style.left;
-			that.cropY = cropper.style.top;
-			console.log('down');
+			var crop_style = document.querySelector('#cropper').style;
+			now_left = crop_style.left;
+			now_top = crop_style.top;
+			now_left = (now_left) ? now_left : 0;
+			now_top = (now_left) ? now_left : 0;
+			that.cropX = parseInt(now_left);
+			that.cropY = parseInt(now_top);
 		});
 
 		document.addEventListener('mouseup', function() {
 			that.dragging = false;
 			document.querySelector('#cropper').style.borderColor = '#fff';
-			console.log('up');
 		});
 
 	    document.addEventListener('mousemove', function(event) {
 // TODO: could prpobly do with throttling this
 	    	if (gusto.cropper.dragging) {
-				console.log('move');
 	    		var gc = gusto.cropper;
 		        var new_top = gc.cropY - (gc.posY - event.pageY);
 		        var new_left = gc.cropX - (gc.posX - event.pageX);
+		        document.querySelector('#cropx').value = new_left;
+		        document.querySelector('#cropy').value = new_top;
+
 		        var crpr = document.querySelector('#cropper').style;
 		        crpr.borderColor = 'red';
 		        crpr.left = new_left + 'px';
@@ -150,11 +157,16 @@ window.addEventListener('load', function() {
 		height of the cropper box.
 		-->
 
-        <input type="text" name="img_id" value="0" />
+        <input type="hidden" name="img_id" value="0" />
 
-        <input type="text" name="cropx" value="0" />
-        <input type="text" name="cropy" value="0" />
+		<label for="cropx">X</label>
+        <input type="text" name="cropx" value="0" id="cropx" />
+		<label for="cropy">Y</label>
+        <input type="text" name="cropy" value="0" id="cropy" />
+		<label for="cropx">X</label>
+		<label for="cropwidth">Zoom Width</label>
         <input type="text" name="cropwidth" value="400" id="cropwidth" />
+		<label for="cropheight">Zoom Height</label>
         <input type="text" name="cropheight" value="400" id="cropheight" />
 
     <div class="submit-row">
