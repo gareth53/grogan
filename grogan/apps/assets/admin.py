@@ -43,9 +43,9 @@ class AssetAdmin(admin.ModelAdmin):
 	# TODO - custom widgets for metatags
 
     def add_view(self, request, form_url='', extra_context=None):
-        # TODO - hcek file extension
+        # TODO - check file extension
 #        valid_extensions = settings.ALLOWED_FILE_EXTENSIONS
-    #        raw_file_name = os.path.join(settings.MEDIA_ROOT, request.GET.get('raw_file'))
+#            raw_file_name = os.path.join(settings.MEDIA_ROOT, request.GET.get('raw_file'))
 #        if not os.path.exists(raw_file_name):
 #            raise Http404
 
@@ -55,5 +55,5 @@ class AssetAdmin(admin.ModelAdmin):
         # TODO - add file hash
         # TODO - check file hasn't already been uploaded
 #            request.POST['file_hash'] = md5.new(request.upload_handlers[0].file.read()).hexdigest()
-# TODO - redirect to custom cropping view    
+        # TODO - redirect to custom cropping view    
         return super(AssetAdmin, self).add_view(request, form_url, extra_context=extra_context)
