@@ -6,6 +6,7 @@
 
 .image_container {
 	position:relative;
+	float:left;
 }
 .image_container img {
 	z-index:0;
@@ -39,19 +40,24 @@
 var gusto = window.gusto||{};
 gusto.cropper = {
 	asset: {
-        width: 1000,
-        height: 400
+        orig_width: 1000,
+        orig_height: 400,
+        disp_width: 1000,
+        disp_height: 400
+    },
+    cropper: {
+        width: 350,
+        height: 200,
+        max_x: 1000 - 350,
+        max_y: 400 - 200
     },
 
-    posX: 0,
-    posY: 0,
-
-	outputUpdate: function(val) {
+	zoom: function(val) {
 		// TODO = make this reusable for a page with multiple crops
 		var w, h;
 
 		w = val;
-		h = Math.round(this.asset.height * (val / this.asset.width));
+		h = Math.round(this.asset.orig_height * (val / this.asset.orig_width));
 
 		// update form values
 		document.querySelector('#cropwidth').value = w;
@@ -64,26 +70,40 @@ gusto.cropper = {
 		img.style.width = new_w;
 		img.style.height = new_h;
 
-		// TODO: change the background-image size in the cropper
-		document.querySelector('#cropper').style.backgroundSize = new_w + ' ' + new_h;
+		this.calculate_crop_limits(w, h);
+		this.move_cropper(undefined, undefined, w, h)
 	},
 
-	init: function() {
-		// set up the resize controls
+	calculate_crop_limits: function(zoom_w, zoom_h) {
+		this.asset.disp_width = zoom_w;
+		this.asset.disp_height = zoom_h;
+
+		this.cropper.max_x = zoom_w - this.cropper.width;
+		this.cropper.max_y = zoom_h - this.cropper.height;
+
+	},
+
+	init_zoomer: function() {
 		var img_wrap = document.querySelector('#image_container');
 		var img = document.querySelector('#displayed_image');
 		var mask = '<div class="image_mask"></div>';
-		var cropper = '<div id="cropper" style="background-image:url('+ img.src +');"></div>';
+		var cropper = '<div id="cropper" style="background-image:url('+ img.src +');left:0;top:0;"></div>';
 
 		img_wrap.innerHTML += mask + cropper;
 
 		// fix min value of resize slider
-		var frame_h = document.querySelector('#cropper').clientHeight;
-		var frame_w = document.querySelector('#cropper').clientWidth;
-		var min_scale = frame_h / gusto.cropper.asset.height;
-		var min_width = Math.ceil(min_scale * gusto.cropper.asset.width)
-		document.querySelector('#zoomer').setAttribute('min', Math.max(frame_w, min_width))
+		var frame_h = parseInt(document.querySelector('#cropper').clientHeight);
+		var frame_w = parseInt(document.querySelector('#cropper').clientWidth);
+		var min_scale = frame_h / gusto.cropper.asset.orig_height;
+		var min_width = Math.ceil(min_scale * gusto.cropper.asset.orig_width);
 
+
+		document.querySelector('#zoomer').setAttribute('min', Math.max(frame_w, min_width))
+	},
+
+	init: function() {
+		// set up the resize controls
+		this.init_zoomer();
 		// add drag event handler
 		this.init_cropper_drag();
 	},
@@ -92,22 +112,19 @@ gusto.cropper = {
 		this.dragging = false;
 		var that = this;
 
-		document.querySelector('#cropper').addEventListener('mousedown', function() {
-			that.dragging = true;
-			// record start click points
-		    var e = window.event;
+		document.querySelector('#cropper').addEventListener('mousedown', function(e) {
+			var pos =  that.get_mouse_pos_in_img(e),
+				crop_style = document.querySelector('#cropper').style,
+				now_left = parseInt(crop_style.left),
+				now_top = parseInt(crop_style.top);
 
-		    that.posX = e.pageX;
-		    that.posY = e.pageY;
+			crop_style.borderColor = '#ff0';
+			that.dragging = true;			
 
-			// where is crop right now?
-			var crop_style = document.querySelector('#cropper').style;
-			now_left = crop_style.left;
-			now_top = crop_style.top;
-			now_left = (now_left) ? now_left : 0;
-			now_top = (now_left) ? now_left : 0;
-			that.cropX = parseInt(now_left);
-			that.cropY = parseInt(now_top);
+			that.drag_offset = {
+				'x': pos['x'] - now_left,
+				'y': pos['y'] - now_top
+			}
 		});
 
 		document.addEventListener('mouseup', function() {
@@ -115,23 +132,52 @@ gusto.cropper = {
 			document.querySelector('#cropper').style.borderColor = '#fff';
 		});
 
-	    document.addEventListener('mousemove', function(event) {
-// TODO: could prpobly do with throttling this
+	    document.addEventListener('mousemove', function(e) {
+// TODO: could probably do with throttling this
 	    	if (gusto.cropper.dragging) {
-	    		var gc = gusto.cropper;
-		        var new_top = gc.cropY - (gc.posY - event.pageY);
-		        var new_left = gc.cropX - (gc.posX - event.pageX);
-		        document.querySelector('#cropx').value = new_left;
-		        document.querySelector('#cropy').value = new_top;
-
-		        var crpr = document.querySelector('#cropper').style;
-		        crpr.borderColor = 'red';
-		        crpr.left = new_left + 'px';
-		        crpr.top = new_top + 'px';
-		        crpr.backgroundPosition = -new_left + 'px ' + -new_top + 'px';
+	    		var coods = that.get_mouse_pos_in_img(e);
+	    		gusto.cropper.move_cropper(coods['x'] - that.drag_offset['x'], coods['y'] - that.drag_offset['y'])
 		    }
         });
-	}
+	},
+
+	get_mouse_pos_in_img: function(e) {
+	    var posX = e.pageX,
+	    	posY = e.pageY,
+			image = document.querySelector('#displayed_image'),
+			img_coods = image.getBoundingClientRect();
+	    // TODO respect scroll position
+		return {
+			'x': posX - img_coods['left'],
+			'y': posY - img_coods['top']
+		}
+	},
+
+    move_cropper: function(left, top, zoom_w, zoom_h) {
+    	console.log(this.cropper['max_x'])
+    	// move the cropper to a given co-ordinate and zoom
+    	var crop_style = document.querySelector('#cropper').style;
+
+    	left = left || parseInt(crop_style.left);
+    	top = top || parseInt(crop_style.top);
+ 		// respect bounding box
+    	left = Math.min(left, this.cropper['max_x']);
+    	top = Math.min(top, this.cropper['max_y']);
+    	left = Math.max(0, left);
+    	top = Math.max(0, top);
+
+    	// now do the move...
+    	crop_style.left = left + 'px';
+    	crop_style.top = top + 'px';
+		// update form values
+		document.querySelector('#cropx').value = left;
+		document.querySelector('#cropy').value = top;
+
+    	crop_style.backgroundPosition = -left + 'px ' + -top + 'px'
+    	if (zoom_w && zoom_h) {
+	    	crop_style.backgroundSize = zoom_w + 'px ' + zoom_h + 'px'
+	    }
+    }
 
 };
 
@@ -149,7 +195,7 @@ window.addEventListener('load', function() {
 <form action="" method="post">
 
 		<label for="zoom">Zoom</label>
-		<input name="zoom" type="range" min="350" max="1000" value="1024" oninput="gusto.cropper.outputUpdate(value)" id="zoomer">
+		<input name="zoom" type="range" min="350" max="1000" value="1000" oninput="gusto.cropper.zoom(value)" id="zoomer">
 		<!--
 		min value is the width of the cropper box
 		 - OR - 
