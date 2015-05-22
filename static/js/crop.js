@@ -1,19 +1,60 @@
 window.$ = django.jQuery;
 
 $(function(){
-    var gusto = window.gusto||{};
+    window.gusto = window.gusto || {};
     gusto.cropper = {
+        $els: {
+            asset : $('#id_asset'),
+            asset_type : $('#id_asset_type'),
+            resize_width : $('#id_resize_width'),
+            resize_height : $('#id_resize_height'),
+            crop_left : $('#id_crop_left'),
+            crop_top : $('#id_crop_top'),
+            crop_bottom : $('#id_crop_bottom'),
+            crop_right : $('#id_crop_right'),
+            width : $('#id_width'),
+            height : $('#id_height'),
+            ratio : $('#id_ratio'),
+            displayed_image: $('#displayed_image')
+        },
         asset: {
             orig_width: 1000,
             orig_height: 400,
             disp_width: 1000,
             disp_height: 400
         },
+
         cropper: {
             width: 350,
             height: 200,
             max_x: 1000 - 350,
             max_y: 400 - 200
+        },
+
+        init: function() {
+            this.init_asset();
+
+            // set up the resize controls
+            this.init_zoomer();
+            // add drag event handler
+            this.init_cropper_drag();
+
+            // listen for form field changes
+            this.setup_listeners();
+        },
+
+        init_asset: function () {
+            var image = this.$els.displayed_image;
+
+            this.asset.orig_height
+        },
+
+        setup_listeners: function (){
+            for (var key in this.$els) {
+                this.$els[key].change(function(){
+                    console.log($(this).attr('name'), $(this).val());
+                });
+            }
         },
 
         zoom: function(val) {
@@ -63,13 +104,6 @@ $(function(){
 
 
             document.querySelector('#zoomer').setAttribute('min', Math.max(frame_w, min_width))
-        },
-
-        init: function() {
-            // set up the resize controls
-            this.init_zoomer();
-            // add drag event handler
-            this.init_cropper_drag();
         },
 
         init_cropper_drag: function() {
