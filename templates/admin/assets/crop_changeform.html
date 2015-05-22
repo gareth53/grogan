@@ -1,0 +1,44 @@
+{% extends "admin/change_form.html" %}
+{% load staticfiles %}
+
+{% block submit_buttons_bottom %}
+    {{ block.super }}
+        
+    {% if asset %}
+    <h3>{{ asset.title }}</h3>
+
+    <form action="" method="post">
+
+
+		<!--
+		min value is the width of the cropper box
+		 - OR -
+		the width that would see the image height dip below
+		height of the cropper box.
+		-->
+        <div class="submit-row">
+            <input type="submit" class="default" value="Save crop" name="save" />
+        </div>
+
+        <label for="zoom">Zoom</label>
+		<input name="zoom" type="range" min="350" max="1000" value="1000" oninput="gusto.cropper.zoom(value)" id="zoomer">
+        <input type="hidden" name="img_id" value="0" />
+
+		<label for="cropx">X</label>
+        <input type="text" name="cropx" value="0" id="cropx" />
+		<label for="cropy">Y</label>
+        <input type="text" name="cropy" value="0" id="cropy" />
+		<label for="cropx">X</label>
+		<label for="cropwidth">Zoom Width</label>
+        <input type="text" name="cropwidth" value="400" id="cropwidth" />
+		<label for="cropheight">Zoom Height</label>
+        <input type="text" name="cropheight" value="400" id="cropheight" />
+
+
+    </form>
+
+    <div id="image_container" class="image_container">
+        <img id="displayed_image" src="/media/{{ asset.image }}" />
+    </div>
+    {% endif %}
+{% endblock %}

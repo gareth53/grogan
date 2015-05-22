@@ -2,7 +2,7 @@ import os
 import md5
 from django.conf import settings
 from django.contrib import admin
-from .models import Asset, Category, Person, Location, Group, Crop
+from .models import Asset, Category, Person, Location, Group, Crop, AssetType
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -22,6 +22,23 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(Crop)
 class CropAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/assets/crop_changeform.html'
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        asset = Asset.objects.get(pk=object_id)
+        # import pdb; pdb.set_trace()
+        extra_context['asset'] = asset
+        return super(CropAdmin, self).change_view(request, object_id, form_url, extra_context=extra_context)
+
+    class Media:
+        js = ['/static/js/crop.js']
+        css = {
+            "all": ("/static/css/cropper.css",)
+        }
+
+@admin.register(AssetType)
+class AssetTypeAdmin(admin.ModelAdmin):
     pass
 
 @admin.register(Asset)
@@ -55,5 +72,5 @@ class AssetAdmin(admin.ModelAdmin):
         # TODO - add file hash
         # TODO - check file hasn't already been uploaded
 #            request.POST['file_hash'] = md5.new(request.upload_handlers[0].file.read()).hexdigest()
-        # TODO - redirect to custom cropping view    
+        # TODO - redirect to custom cropping view
         return super(AssetAdmin, self).add_view(request, form_url, extra_context=extra_context)
