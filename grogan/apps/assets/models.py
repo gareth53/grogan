@@ -118,28 +118,25 @@ class Crop(models.Model):
     crop_left = models.IntegerField()
     crop_top = models.IntegerField()
 
-    crop_bottom = models.IntegerField()
-    crop_right = models.IntegerField()
+    # crop_bottom = models.IntegerField()
+    # crop_right = models.IntegerField()
 
-    width = models.IntegerField(blank=True)
-    height = models.IntegerField(blank=True)
-
-    ratio = models.FloatField(blank=True)
-
-    def save(self, *args, **kwargs):
-        self.width = self.crop_right - self.crop_left
-        self.height = self.crop_bottom - self.crop_top
-        self.ratio = self.width / self.height
-        super(Crop, self).save(*args, **kwargs)
+    # width = models.IntegerField(blank=True)
+    # height = models.IntegerField(blank=True)
 
     def __unicode__(self):
-        return "%s (%s x %s)" % (self.asset.title, self.width, self.height)
+        return "%s (%s x %s)" % (self.asset.title, self.asset_type.width, self.asset_type.height)
 
 
 class AssetType(models.Model):
     name = models.CharField(max_length=100)
     width = models.IntegerField()
     height = models.IntegerField()
+    ratio = models.DecimalField(max_digits=10, decimal_places=1)
 
     def __unicode__(self):
         return "%s (%s x %s)" % (self.name, self.width, self.height)
+
+    def save(self, *args, **kwargs):
+        self.ratio = float(self.width) / self.height
+        super(AssetType, self).save(*args, **kwargs)

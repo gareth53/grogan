@@ -10,10 +10,6 @@ $(function(){
             resize_height : $('#id_resize_height'),
             crop_left : $('#id_crop_left'),
             crop_top : $('#id_crop_top'),
-            crop_bottom : $('#id_crop_bottom'),
-            crop_right : $('#id_crop_right'),
-            width : $('#id_width'),
-            height : $('#id_height'),
             ratio : $('#id_ratio'),
             displayed_image: $('#displayed_image')
         },
@@ -32,8 +28,7 @@ $(function(){
         },
 
         init: function() {
-            this.init_asset();
-
+            this.init_asset_and_type();
             // set up the resize controls
             this.init_zoomer();
             // add drag event handler
@@ -43,10 +38,29 @@ $(function(){
             this.setup_listeners();
         },
 
-        init_asset: function () {
-            var image = this.$els.displayed_image;
+        init_asset_and_type: function () {
+            var image = this.$els.displayed_image[0];
+            this.asset.orig_width = this.asset.disp_width = image.width;
+            this.asset.orig_height = this.asset.disp_height = image.height;
 
-            this.asset.orig_height
+
+            var asset_type = this.$els.asset_type.children('option:selected');
+            var regExp = /\(([^)]+)\)/;
+            var matches = regExp.exec(asset_type.text());
+            var crop_dimensions = matches[1].split(' x ');
+
+            this.cropper.width = crop_dimensions[0];
+            this.cropper.height = crop_dimensions[1];
+            this.cropper.max_x = this.asset.orig_width - this.cropper.width;
+            this.cropper.max_y = this.asset.orig_height - this.cropper.height;
+        },
+
+        init_cropper: function () {
+            var $cropper = $('#cropper');
+            $cropper.css({
+                width: this.cropper.width,
+                height: this.cropper.height
+            })
         },
 
         setup_listeners: function (){
@@ -102,6 +116,7 @@ $(function(){
             var min_scale = frame_h / gusto.cropper.asset.orig_height;
             var min_width = Math.ceil(min_scale * gusto.cropper.asset.orig_width);
 
+            this.init_cropper();
 
             document.querySelector('#zoomer').setAttribute('min', Math.max(frame_w, min_width))
         },
@@ -168,15 +183,14 @@ $(function(){
             crop_style.left = left + 'px';
             crop_style.top = top + 'px';
             // update form values
-            document.querySelector('#cropx').value = left;
-            document.querySelector('#cropy').value = top;
+            this.$els.crop_left.val(left);
+            this.$els.crop_top.val(top);
 
             crop_style.backgroundPosition = -left + 'px ' + -top + 'px'
             if (zoom_w && zoom_h) {
                 crop_style.backgroundSize = zoom_w + 'px ' + zoom_h + 'px'
             }
         }
-
     };
 
     gusto.cropper.init();

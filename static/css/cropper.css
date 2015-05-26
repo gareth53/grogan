@@ -20,8 +20,6 @@
   top: 0px;
   left: 0px;		/* TODO: starting points shoulod be calculated
   					programatically? */
-  width:350px;
-  height:200px;		/* TODO: width/height will be different for each crop */
 
   border: 1px solid rgb(204, 204, 204);
   z-index: 2;
