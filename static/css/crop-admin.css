@@ -25,3 +25,8 @@
   z-index: 2;
   background-position: 0 0;
 }
+
+
+.cropper-controls {
+    text-align: left;
+}

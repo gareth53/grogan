@@ -10,16 +10,21 @@ $(function(){
             resize_height : $('#id_resize_height'),
             crop_left : $('#id_crop_left'),
             crop_top : $('#id_crop_top'),
-            ratio : $('#id_ratio'),
+            ratio : $('#id_zoom_ratio'),
             displayed_image: $('#displayed_image')
         },
+        current_image: null,
         asset: {
             orig_width: 1000,
             orig_height: 400,
             disp_width: 1000,
             disp_height: 400
         },
-
+        zoomer: {
+            min: 0,
+            max: 0,
+            value: 0
+        },
         cropper: {
             width: 350,
             height: 200,
@@ -28,6 +33,7 @@ $(function(){
         },
 
         init: function() {
+            var that = this;
             this.init_asset_and_type();
             // set up the resize controls
             this.init_zoomer();
@@ -36,16 +42,19 @@ $(function(){
 
             // listen for form field changes
             this.setup_listeners();
+
+            $('#reset-zoomer').on('click', function(){
+                that.update_zoomer();
+            });
         },
 
         init_asset_and_type: function () {
-            var image = this.$els.displayed_image[0];
-            this.asset.orig_width = this.asset.disp_width = image.width;
-            this.asset.orig_height = this.asset.disp_height = image.height;
-
+            this.current_image = this.$els.displayed_image[0];
+            this.asset.orig_width = this.asset.disp_width = this.current_image.width;
+            this.asset.orig_height = this.asset.disp_height = this.current_image.height;
 
             var asset_type = this.$els.asset_type.children('option:selected');
-            var regExp = /\(([^)]+)\)/;
+            var regExp = /\[([^)]+)\]/;
             var matches = regExp.exec(asset_type.text());
             var crop_dimensions = matches[1].split(' x ');
 
@@ -56,11 +65,11 @@ $(function(){
         },
 
         init_cropper: function () {
-            var $cropper = $('#cropper');
-            $cropper.css({
+            this.$els.cropper = $('#cropper');
+            this.$els.cropper.css({
                 width: this.cropper.width,
                 height: this.cropper.height
-            })
+            });
         },
 
         setup_listeners: function (){
@@ -78,10 +87,6 @@ $(function(){
             w = val;
             h = Math.round(this.asset.orig_height * (val / this.asset.orig_width));
 
-            // update form values
-            document.querySelector('#cropwidth').value = w;
-            document.querySelector('#cropheight').value = h;
-
             //change the image
             var img = document.querySelector('#displayed_image');
             new_w = w + 'px';
@@ -89,8 +94,10 @@ $(function(){
             img.style.width = new_w;
             img.style.height = new_h;
 
+
+            this.$els.ratio.val(val / this.asset.orig_width);
             this.calculate_crop_limits(w, h);
-            this.move_cropper(undefined, undefined, w, h)
+            this.move_cropper(undefined, undefined, w, h);
         },
 
         calculate_crop_limits: function(zoom_w, zoom_h) {
@@ -110,15 +117,26 @@ $(function(){
 
             img_wrap.innerHTML += mask + cropper;
 
-            // fix min value of resize slider
-            var frame_h = parseInt(document.querySelector('#cropper').clientHeight);
-            var frame_w = parseInt(document.querySelector('#cropper').clientWidth);
-            var min_scale = frame_h / gusto.cropper.asset.orig_height;
-            var min_width = Math.ceil(min_scale * gusto.cropper.asset.orig_width);
-
             this.init_cropper();
 
-            document.querySelector('#zoomer').setAttribute('min', Math.max(frame_w, min_width))
+            this.zoomer.min = this.get_min_zoom_width();
+            this.zoomer.max = this.current_image.width * 1.5;
+            this.zoomer.value = this.current_image.width;
+
+            this.update_zoomer();
+        },
+
+        update_zoomer: function () {
+            $('#zoomer').attr('min', this.zoomer.min)
+                        .attr('max', this.zoomer.max)
+                        .attr('value', this.zoomer.value);
+        },
+
+        get_min_zoom_width: function () {
+            var img = this.current_image;
+            var min_zoom =  Math.min((img.width / this.cropper.width), (img.height / this.cropper.height));
+
+            return img.width / min_zoom;
         },
 
         init_cropper_drag: function() {
@@ -167,7 +185,6 @@ $(function(){
         },
 
         move_cropper: function(left, top, zoom_w, zoom_h) {
-            console.log(this.cropper['max_x'])
             // move the cropper to a given co-ordinate and zoom
             var crop_style = document.querySelector('#cropper').style;
 
@@ -182,6 +199,7 @@ $(function(){
             // now do the move...
             crop_style.left = left + 'px';
             crop_style.top = top + 'px';
+
             // update form values
             this.$els.crop_left.val(left);
             this.$els.crop_top.val(top);

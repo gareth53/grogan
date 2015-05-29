@@ -34,6 +34,19 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='AssetType',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=100)),
+                ('width', models.IntegerField()),
+                ('height', models.IntegerField()),
+                ('ratio', models.DecimalField(max_digits=10, decimal_places=1)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Category',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -48,16 +61,11 @@ class Migration(migrations.Migration):
             name='Crop',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('resize_width', models.IntegerField()),
-                ('resize_height', models.IntegerField()),
-                ('crop_left', models.IntegerField()),
-                ('crop_top', models.IntegerField()),
-                ('crop_bottom', models.IntegerField()),
-                ('crop_right', models.IntegerField()),
-                ('width', models.IntegerField(blank=True)),
-                ('height', models.IntegerField(blank=True)),
-                ('ratio', models.FloatField(blank=True)),
+                ('crop_left', models.IntegerField(default=0)),
+                ('crop_top', models.IntegerField(default=0)),
+                ('zoom_ratio', models.FloatField(default=1)),
                 ('asset', models.ForeignKey(to='assets.Asset')),
+                ('asset_type', models.ForeignKey(to='assets.AssetType')),
             ],
             options={
             },

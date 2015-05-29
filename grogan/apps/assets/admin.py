@@ -26,15 +26,14 @@ class CropAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
-        asset = Asset.objects.get(pk=object_id)
-        # import pdb; pdb.set_trace()
-        extra_context['asset'] = asset
+        crop = Crop.objects.get(pk=object_id)
+        extra_context['asset'] = crop.asset
         return super(CropAdmin, self).change_view(request, object_id, form_url, extra_context=extra_context)
 
     class Media:
-        js = ['/static/js/crop.js']
+        js = ['/static/js/cropper-admin.js']
         css = {
-            "all": ("/static/css/cropper.css",)
+            "all": ("/static/css/crop-admin.css",)
         }
 
 @admin.register(AssetType)
