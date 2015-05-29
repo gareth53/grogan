@@ -1,5 +1,13 @@
 window.$ = django.jQuery;
 
+/*
+    TODO:
+    - Handle if the specified crop is larger than the asset we're working with
+    - Zoom image on init if zoom already specified.
+    - Move Zoom slider on init if zoom already specified.
+ */
+
+
 $(function() {
     'use strict';
     window.gusto = window.gusto || {};
