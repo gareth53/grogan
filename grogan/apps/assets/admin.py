@@ -38,7 +38,7 @@ class CropAdmin(admin.ModelAdmin):
 
 @admin.register(AssetType)
 class AssetTypeAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'ratio')
+    list_display = ('__unicode__',)
     fields = ('name', 'width', 'height')
 
 @admin.register(Asset)

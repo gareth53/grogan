@@ -14,10 +14,14 @@ $(function() {
     gusto.cropper = {
         $container: $('#image_container'),
         $asset: $('#displayed_image'),
+        $zoomer: $('#zoomer'),
         $cropper: null,
-        orig_width: null,
-        orig_height: null,
-        zoom: {
+        orig_ratio: 1,
+        orig_width: 0,
+        orig_height: 0,
+        disp_width: 0,
+        disp_height: 0,
+        zoomer: {
             min: 0,
             max: 0,
             value: 0
@@ -32,6 +36,10 @@ $(function() {
         init: function () {
             this.orig_width = this.$asset.width();
             this.orig_height = this.$asset.height();
+            this.orig_ratio = $('#id_zoom_ratio').val();
+
+            this.disp_width = this.orig_width * this.orig_ratio;
+            this.disp_height = this.orig_height * this.orig_ratio;
 
             this.$cropper = $('<div id="cropper" style="background-image:url(' + this.$asset.attr("src") + ');left:0;top:0;"></div>');
 
@@ -51,7 +59,6 @@ $(function() {
                 'width': width,
                 'height': height
             });
-
         },
 
         init_crop: function () {
@@ -63,8 +70,8 @@ $(function() {
 
             this.crop.width = crop_dimensions[0];
             this.crop.height = crop_dimensions[1];
-            this.crop.max_x = this.orig_width - this.crop.width;
-            this.crop.max_y = this.orig_height - this.crop.height;
+            this.crop.max_x = this.disp_width - this.crop.width;
+            this.crop.max_y = this.disp_height - this.crop.height;
 
             this.$cropper.css({
                 width: this.crop.width,
@@ -99,6 +106,8 @@ $(function() {
                     that.move_cropper(coords.x - that.drag_offset.x, coords.y - that.drag_offset.y);
                 }
             });
+
+            this.move_cropper($('#id_crop_left').val(), $('#id_crop_top').val(), this.orig_width * $('#id_zoom_ratio').val() , this.orig_height * $('#id_zoom_ratio').val());
         },
 
         get_mouse_pos_in_img: function (e) {
@@ -139,14 +148,51 @@ $(function() {
         },
 
         init_zoomer: function () {
-            this.zoom.min = this.get_min_zoom_width();
-            this.zoom.max = this.$asset.width() * 1.5;
-            this.zoom.value = this.$asset.width();
+            var that = this;
+            this.zoomer.min = this.get_min_zoom_width();
+            this.zoomer.max = this.orig_width * 1.5;
+            this.zoomer.value = this.$asset.width();
+
+            $('#reset-zoomer').on('click', function () {
+                that.$zoomer.val(that.orig_ratio * that.orig_width);
+                that.update_zoomer();
+                that.zoom(that.orig_ratio * that.orig_width);
+                return false;
+            });
+
+            this.update_zoomer();
+        },
+
+        update_zoomer: function () {
+            this.$zoomer.attr('min', this.zoomer.min)
+                        .attr('max', this.zoomer.max)
+                        .attr('value', this.zoomer.value);
+        },
+
+        zoom: function (val) {
+            var width = val,
+                height = Math.round(this.orig_height * (width / this.orig_width));
+            this.$asset.css({
+                'width': width,
+                'height': height
+            });
+
+            $('#id_zoom_ratio').val(width / this.orig_width);
+            this.calculate_crop_limits(width, height);
+            this.move_cropper(undefined, undefined, width, height);
+        },
+
+        calculate_crop_limits: function(zoom_w, zoom_h) {
+            this.disp_width = zoom_w;
+            this.disp_height = zoom_h;
+
+            this.crop.max_x = zoom_w - this.crop.width;
+            this.crop.max_y = zoom_h - this.crop.height;
+
         },
 
         get_min_zoom_width: function () {
             var min_zoom =  Math.min((this.$asset.width() / this.crop.width), (this.$asset.height() / this.crop.height));
-
             return this.$asset.width() / min_zoom;
         }
     };

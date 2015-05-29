@@ -125,7 +125,7 @@ class AssetType(models.Model):
     name = models.CharField(max_length=100)
     width = models.IntegerField()
     height = models.IntegerField()
-    ratio = models.DecimalField(max_digits=10, decimal_places=1)
+    # ratio = models.DecimalField(max_digits=10, decimal_places=1, default=1)
 
     def __unicode__(self):
         return "%s [%s x %s]" % (self.name, self.width, self.height)
