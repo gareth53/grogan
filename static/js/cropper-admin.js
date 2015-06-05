@@ -3,8 +3,6 @@ window.$ = django.jQuery;
 /*
     TODO:
     - Handle if the specified crop is larger than the asset we're working with
-    - Zoom image on init if zoom already specified.
-    - Move Zoom slider on init if zoom already specified.
  */
 
 
@@ -63,9 +61,14 @@ $(function() {
 
         init_crop: function () {
             var that = this,
-                asset_type = $('#id_asset_type option:selected').text(),
+                $asset_type = $('#id_asset_type');
+
+            if ($asset_type.val().length === 0) {
+                return;
+            }
+            var asset_dims = $asset_type.find('option:selected').text(),
                 regExp = /\[([^)]+)\]/,
-                matches = regExp.exec(asset_type),
+                matches = regExp.exec(asset_dims),
                 crop_dimensions = matches[1].split(' x ');
 
             this.crop.width = crop_dimensions[0];
@@ -105,6 +108,10 @@ $(function() {
                     var coords = that.get_mouse_pos_in_img(e);
                     that.move_cropper(coords.x - that.drag_offset.x, coords.y - that.drag_offset.y);
                 }
+            });
+
+            $asset_type.on('change', function () {
+                that.init_crop();
             });
 
             this.move_cropper($('#id_crop_left').val(), $('#id_crop_top').val(), this.orig_width * $('#id_zoom_ratio').val() , this.orig_height * $('#id_zoom_ratio').val());
