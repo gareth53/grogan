@@ -117,6 +117,22 @@ class Crop(models.Model):
 
     zoom_ratio = models.FloatField(default=1)
 
+    @property
+    def crop_bottom(self):
+        return self.crop_top + self.asset_type.height
+
+    @property
+    def crop_right(self):
+        return self.crop_left + self.asset_type.width
+
+    @property
+    def width(self):
+        return self.asset_type.width
+
+    @property
+    def height(self):
+        return self.asset_type.height
+
     def __unicode__(self):
         return "%s (%s x %s)" % (self.asset.title, self.asset_type.width, self.asset_type.height)
 

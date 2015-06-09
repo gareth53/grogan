@@ -29,7 +29,7 @@ def asset_image(request, asset_id):
 		height = float(height)
 
 	if not width and not height:
-		return asset.image
+		return HttpResponse(asset.image, content_type="image/jpeg")
 
 	try:
 		image = Image.open(asset.image)
@@ -37,11 +37,21 @@ def asset_image(request, asset_id):
     	# TODO, return 404 image
 		return HttpResponse('Image not found on filesystem', content_type="text/plain")
 
-	asset_w, asset_h = image.size 
+	asset_w, asset_h = image.size
 
-	all_crops = list(asset.crop_set.all().values('width', 'height', 'ratio', 'crop_left', 'crop_top', 'resize_width', 'resize_height', 'crop_bottom', 'crop_right'))
+	all_crops = [{
+		'id': crop.id,
+		'width': crop.asset_type.width,
+		'height': crop.asset_type.height,
+		'ratio': crop.asset_type.ratio,
+		'crop_left': crop.crop_left,
+		'crop_top': crop.crop_top,
+		'resize_width': crop.resize_height,
+		'resize_height': crop.resize_width
+	} for crop in asset.crop_set.all()]
 	# add the full image as the 'default' crop
 	all_crops.append({
+		'id': 'original',
 		'width': asset_w,
 		'height': asset_h,
 		'ratio': asset_w/asset_h,
@@ -56,7 +66,7 @@ def asset_image(request, asset_id):
     	# TODO, return 404 image
 		return HttpResponse('Could not create crop', content_type="text/plain")
 	# now do the pillow stuff
-	image = image.resize((crop['resize_width'], crop['resize_height']))
+	image = image.resize((crop['resize_height'], crop['resize_width']))
 	cropbox = (crop['crop_left'], crop['crop_top'], crop['crop_right'], crop['crop_bottom'])
 	image = image.crop(box=cropbox)
 

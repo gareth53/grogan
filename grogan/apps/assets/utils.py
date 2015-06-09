@@ -53,7 +53,7 @@ def get_crop_props(asset_w, asset_h, crops, width, height):
 		crop['crop_bottom'] = crop['crop_top'] + height
 		crop['crop_right'] = crop['crop_left'] + width
 		for key, val in crop.items():
-			crop[key] = int(val)
+			crop[key] = int(val	)
 		return crop
 
 	return None

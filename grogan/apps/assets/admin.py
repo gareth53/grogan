@@ -36,6 +36,9 @@ class CropAdmin(admin.ModelAdmin):
             "all": ("/static/css/crop-admin.css",)
         }
 
+    list_display = ('asset', 'resize_width', 'resize_height', 'crop_left', 'crop_top', 'width', 'height')
+
+
 @admin.register(AssetType)
 class AssetTypeAdmin(admin.ModelAdmin):
     list_display = ('__unicode__',)
