@@ -133,6 +133,10 @@ class Crop(models.Model):
     def height(self):
         return self.asset_type.height
 
+    @property
+    def aspect_ratio(self):
+        return self.asset_type.width / self.asset_type.height
+
     def __unicode__(self):
         return "%s (%s x %s)" % (self.asset.title, self.asset_type.width, self.asset_type.height)
 

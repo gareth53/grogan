@@ -43,7 +43,7 @@ def asset_image(request, asset_id):
 		'id': crop.id,
 		'width': crop.asset_type.width,
 		'height': crop.asset_type.height,
-		'ratio': crop.asset_type.ratio,
+		'ratio': crop.aspect_ratio,
 		'crop_left': crop.crop_left,
 		'crop_top': crop.crop_top,
 		'resize_width': crop.resize_height,
