@@ -128,6 +128,23 @@ class GetCropProps(TestCase):
 		assert returned['crop_left'] == 100
 		assert returned['crop_right'] == 700
 
+	def test_get_crop_props_reworks_leak_to_right(self):
+		"""
+		the crop here is deeper
+		"""
+		crops = [
+			# (width, height, left, top, resize_width, resize_height
+			crop_factory(1600, 800, 0, 0, 1600, 3200),
+		]
+		returned = get_crop_props(2000, 4000, crops, 1600, 1600)
+		assert returned['resize_width'] == 1600
+		assert returned['resize_height'] == 3200
+		assert returned['crop_top'] == 0
+		assert returned['crop_bottom'] == 1600
+		assert returned['crop_left'] == 0
+		assert returned['crop_right'] == 1600
+
+
 # TODO, test rework of leak to the left
 # TODO test rework of height leak
 
