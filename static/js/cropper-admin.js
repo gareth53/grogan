@@ -61,7 +61,7 @@ $(function() {
 
         init_crop: function () {
             var that = this,
-                $asset_type = $('#id_asset_type');
+                $asset_type = $('#id_crop_spec');
 
             if ($asset_type.val().length === 0) {
                 return;

@@ -1,7 +1,7 @@
 from django.test import TestCase
-from grogan.apps.assets.utils import order_crops_by_suitability
+from grogan.apps.assets.utils import order_crops_by_suitability, get_crop_props
 
-def crop_factory(w, h, l, t, zoom_w, zoom_h, expected_order):
+def crop_factory(w, h, l, t, zoom_w, zoom_h, expected_order=None):
 	return {
 		'width': w,
 		'height': h,
@@ -21,7 +21,17 @@ class OrderCropsTestCase(TestCase):
 	def setup(self):
 		pass
 
+
 	def test_order_crops_by_suitability1(self):
+		# simple case
+		crops = [
+			crop_factory(200, 200, 0, 0, 200, 200, 0),
+		]
+		returned = order_crops_by_suitability(crops, 200, 200)
+		for i, crop in enumerate(returned):
+			assert crop['expected_order'] == i
+
+	def test_order_crops_by_suitability2(self):
 		# simple case
 		crops = [
 			crop_factory(1600, 800, 0, 0, 1600, 900, 2),
@@ -32,3 +42,69 @@ class OrderCropsTestCase(TestCase):
 		returned = order_crops_by_suitability(crops, 1600, 900)
 		for i, crop in enumerate(returned):
 			assert crop['expected_order'] == i
+
+class GetCropProps(TestCase):
+
+	def test_get_crop_props_simple(self):
+		crops = [
+			crop_factory(1600, 800, 0, 0, 1600, 800),
+		]
+		# this should just return the data as is
+		returned = get_crop_props(1600, 800, crops, 1600, 800)
+
+		assert returned['resize_width'] == 1600
+		assert returned['resize_height'] == 800
+		assert returned['crop_top'] == 0
+		assert returned['crop_right'] == 1600
+		assert returned['crop_bottom'] == 800
+		assert returned['crop_left'] == 0
+
+	def test_get_crop_props_first_is_unsuitable(self):
+		crops = [
+			crop_factory(1600, 800, 0, 0, 1800, 900),
+			crop_factory(1600, 800, 0, 0, 1600, 800),
+		]
+		# this should return the second in the list
+		returned = get_crop_props(1600, 800, crops, 1600, 800)
+
+		assert returned['resize_width'] == 1600
+		assert returned['resize_height'] == 800
+		assert returned['crop_top'] == 0
+		assert returned['crop_right'] == 1600
+		assert returned['crop_bottom'] == 800
+		assert returned['crop_left'] == 0
+
+
+	def test_get_crop_props_all_are_unsuitable(self):
+		crops = [
+			crop_factory(1600, 800, 0, 0, 1800, 900),
+			crop_factory(1600, 800, 0, 0, 1600, 800),
+		]
+		returned = get_crop_props(800, 400, crops, 1600, 800)
+		assert returned is None
+
+
+	def test_get_crop_props_scales_down(self):
+		crops = [
+			crop_factory(1600, 800, 0, 0, 1600, 800),
+		]
+		returned = get_crop_props(1600, 800, crops, 800, 400)
+		assert returned['resize_width'] == 800
+		assert returned['resize_height'] == 400
+		assert returned['crop_top'] == 0
+		assert returned['crop_right'] == 800
+		assert returned['crop_bottom'] == 400
+		assert returned['crop_left'] == 0
+
+
+#	def test_get_crop_props_reworks_diff_aspect_ratio(self):
+#		crops = [
+#			crop_factory(1600, 600, 0, 100, 1600, 800),
+#		]
+#		returned = get_crop_props(1600, 800, crops, 800, 400)
+#		assert returned['resize_width'] == 1600
+#		assert returned['resize_height'] == 800
+#		assert returned['crop_top'] == 0
+#		assert returned['crop_right'] == 800
+#		assert returned['crop_bottom'] == 400
+#		assert returned['crop_left'] == 0

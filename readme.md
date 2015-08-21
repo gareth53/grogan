@@ -8,9 +8,18 @@ In order to achieve the following goals:
 
 __Setup Steps__
 
-virtualenv --no-site-packages venv
-venv/bin/pip install -r requirements.txt
-venv/bin/python grogan/manage.py runserver
+- virtualenv --no-site-packages venv
+- venv/bin/pip install -r requirements.txt
+- venv/bin/python grogan/manage.py runserver
+
+__Creating a A User Via The Shell___
+
+from django.contrib.auth.models import User
+u = User.objects.create_user(username='gareth')
+u.is_superuser = True
+u.is_staff = True
+u.set_password('password')
+u.save()
 
 __Development Tasks for Basic POC__
 

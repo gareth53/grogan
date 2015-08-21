@@ -2,7 +2,7 @@ import os
 import md5
 from django.conf import settings
 from django.contrib import admin
-from .models import Asset, Category, Person, Location, Group, Crop, AssetType
+from .models import Asset, Category, Person, Location, Group, Crop, CropSize
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -36,12 +36,12 @@ class CropAdmin(admin.ModelAdmin):
             "all": ("/static/css/crop-admin.css",)
         }
 
-    list_display = ('asset', 'width', 'height', 'crop_left', 'crop_top', 'width', 'height', 'aspect_ratio')
+    list_display = ('__unicode__', 'resize_width', 'resize_height', 'crop_left', 'crop_top', 'aspect_ratio')
 
 
-@admin.register(AssetType)
-class AssetTypeAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__',)
+@admin.register(CropSize)
+class CropSizeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'enabled', 'width', 'height')
     fields = ('name', 'width', 'height')
 
 @admin.register(Asset)

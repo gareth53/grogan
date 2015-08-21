@@ -108,9 +108,14 @@ class Asset(models.Model):
         return self.title
 
 class Crop(models.Model):
+    """
+    The information relating to a crop of an Asset.
+    Crops keyed to an asset will be used to calculate an on-the-fly crop of
+    an asset 
+    """
 
     asset = models.ForeignKey(Asset)
-    asset_type = models.ForeignKey('AssetType')
+    crop_spec = models.ForeignKey('CropSize')
 
     crop_left = models.IntegerField(default=0)
     crop_top = models.IntegerField(default=0)
@@ -119,37 +124,38 @@ class Crop(models.Model):
 
     @property
     def crop_bottom(self):
-        return self.crop_top + self.asset_type.height
+        return self.crop_top + self.crop_spec.height
 
     @property
     def crop_right(self):
-        return self.crop_left + self.asset_type.width
+        return self.crop_left + self.crop_spec.width
 
     @property
-    def width(self):
-        return self.asset_type.width
+    def resize_width(self):
+        return self.asset.width * self.zoom_ratio
 
     @property
-    def height(self):
-        return self.asset_type.height
+    def resize_height(self):
+        return self.crop_spec.height * self.zoom_ratio
 
     @property
     def aspect_ratio(self):
-        return self.asset_type.width / self.asset_type.height
+        return self.crop_spec.width / self.crop_spec.height
 
     def __unicode__(self):
-        return "%s (%s x %s)" % (self.asset.title, self.asset_type.width, self.asset_type.height)
+        return "%s (%s)" % (self.asset.title, self.crop_spec.name)
 
 
-class AssetType(models.Model):
-    name = models.CharField(max_length=100)
+class CropSize(models.Model):
+    """
+    A crop size for editors to crop upon uploading a new image.
+    Instances of a Crop object will be created for each enabled CropType
+    """
+
+    name = models.CharField(max_length=100, help_text="Something generic e.g. 'Small square'")
     width = models.IntegerField()
     height = models.IntegerField()
-    # ratio = models.DecimalField(max_digits=10, decimal_places=1, default=1)
+    enabled = models.BooleanField(default=True)
 
     def __unicode__(self):
         return "%s [%s x %s]" % (self.name, self.width, self.height)
-
-    def save(self, *args, **kwargs):
-        # self.ratio = float(self.width) / self.height
-        super(AssetType, self).save(*args, **kwargs)

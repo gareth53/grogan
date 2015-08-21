@@ -34,19 +34,6 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='AssetType',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=100)),
-                ('width', models.IntegerField()),
-                ('height', models.IntegerField()),
-                ('ratio', models.DecimalField(max_digits=10, decimal_places=1)),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='Category',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -65,7 +52,19 @@ class Migration(migrations.Migration):
                 ('crop_top', models.IntegerField(default=0)),
                 ('zoom_ratio', models.FloatField(default=1)),
                 ('asset', models.ForeignKey(to='assets.Asset')),
-                ('asset_type', models.ForeignKey(to='assets.AssetType')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CropSize',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(help_text=b"Something generic e.g. 'Small square'", max_length=100)),
+                ('width', models.IntegerField()),
+                ('height', models.IntegerField()),
+                ('enabled', models.BooleanField(default=True)),
             ],
             options={
             },
@@ -101,6 +100,12 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'People',
             },
             bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='crop',
+            name='crop_spec',
+            field=models.ForeignKey(to='assets.CropSize'),
+            preserve_default=True,
         ),
         migrations.AddField(
             model_name='asset',

@@ -5,7 +5,6 @@ from .utils import order_crops_by_suitability, get_crop_props
 
 from StringIO import StringIO
 from PIL import Image
-from .models import Asset
 
 def asset_image(request, asset_id):
 	"""
@@ -22,14 +21,11 @@ def asset_image(request, asset_id):
 	# TODO: support aspect ratio?
 	width = request.GET.get('width', None)
 	height = request.GET.get('height', None)
-
-	if width:
-		width = float(width)
-	if height:
-		height = float(height)
-
 	if not width and not height:
 		return HttpResponse(asset.image, content_type="image/jpeg")
+
+	reqd_width = float(width)
+	reqd_height = float(height)
 
 	try:
 		image = Image.open(asset.image)
@@ -38,20 +34,9 @@ def asset_image(request, asset_id):
 		return HttpResponse('Image not found on filesystem', content_type="text/plain")
 
 	asset_w, asset_h = image.size
-
+	# TODO - refactor - we can just pass ORM objects here...?
+	# start with the full image as the 'default' crop
 	all_crops = [{
-		'id': crop.id,
-		'width': crop.asset_type.width,
-		'height': crop.asset_type.height,
-		'ratio': crop.aspect_ratio,
-		'crop_left': crop.crop_left,
-		'crop_top': crop.crop_top,
-		'resize_width': crop.resize_height,
-		'resize_height': crop.resize_width
-	} for crop in asset.crop_set.all()]
-	# add the full image as the 'default' crop
-	all_crops.append({
-		'id': 'original',
 		'width': asset_w,
 		'height': asset_h,
 		'ratio': asset_w/asset_h,
@@ -59,12 +44,24 @@ def asset_image(request, asset_id):
 		'crop_top': 0,
 		'resize_width': asset_w,
 		'resize_height': asset_h
-	})
-	crops = order_crops_by_suitability(all_crops, width, height)
-	crop = get_crop_props(asset_w, asset_h, crops, width, height)
+	}]
+	db_crops = asset.crop_set.all()
+	for crop in db_crops:
+		db_crops.append({
+			'width': crop.crop_spec.width,
+			'height': crop.crop_spec.height,
+			'ratio': crop.aspect_ratio,
+			'crop_left': crop.crop_left,
+			'crop_top': crop.crop_top,
+			'resize_width': crop.resize_height,
+			'resize_height': crop.resize_width
+		})
+	crops = order_crops_by_suitability(all_crops, reqd_width, reqd_height)
+	crop = get_crop_props(asset_w, asset_h, crops, reqd_width, reqd_height)
 	if not crop:
     	# TODO, return 404 image
 		return HttpResponse('Could not create crop', content_type="text/plain")
+
 	# now do the pillow stuff
 	image = image.resize((crop['resize_height'], crop['resize_width']))
 	cropbox = (crop['crop_left'], crop['crop_top'], crop['crop_right'], crop['crop_bottom'])
