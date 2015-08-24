@@ -47,17 +47,19 @@ def asset_image(request, asset_id):
 	}]
 	db_crops = asset.crop_set.all()
 	for crop in db_crops:
-		db_crops.append({
+		all_crops.append({
 			'width': crop.crop_spec.width,
 			'height': crop.crop_spec.height,
 			'ratio': crop.aspect_ratio,
 			'crop_left': crop.crop_left,
 			'crop_top': crop.crop_top,
-			'resize_width': crop.resize_height,
-			'resize_height': crop.resize_width
+			'resize_width': asset_h * crop.zoom_ratio,
+			'resize_height': asset_w * crop.zoom_ratio
 		})
-	crops = order_crops_by_suitability(all_crops, reqd_width, reqd_height)
-	crop = get_crop_props(asset_w, asset_h, crops, reqd_width, reqd_height)
+	ordered_crops = order_crops_by_suitability(all_crops, reqd_width, reqd_height)
+#	import pdb
+#	pdb.set_trace()
+	crop = get_crop_props(asset_w, asset_h, ordered_crops, reqd_width, reqd_height)
 	if not crop:
     	# TODO, return 404 image
 		return HttpResponse('Could not create crop', content_type="text/plain")

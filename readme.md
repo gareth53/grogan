@@ -30,6 +30,7 @@ __Development Tasks for Basic POC__
 - basic models
 - basic admin
 - custom admin to create crops
+- fixtures for crop sizes
 - dynamic crop logic
 - API Endpoint
 - Gusto Editorial Assets admin demo

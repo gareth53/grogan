@@ -1,0 +1,44 @@
+DEFAULT CROPS
+
+Small Square 200 x 200
+Large Square 600 x 600
+
+Small Landscape 244 x 325
+Large Landscape 500 x 282
+
+Widescreen 500 x 200
+
+
+
+
+Standard Ratios:
+
+1:1     1
+4:3     1.33
+16:9	1.77
+21:9	2.33
+Modern Widescreen   2.39
+
+
+REQUIREMENTS
+
+Small_Pod_V4 		138 x 138		1
+Small Pod 			116 x 116		1
+List Tablet 		500 x 500		1
+Promo Handheld 		640 x 640		1
+
+Small Front Cover 	70 x 52			1.35
+Filmstrip Handheld 	500 x 400		1.25
+Filmstrip Tablet 	640 x 470		1.36
+
+Promo Tablet 		1536 x 1000		1.536
+List Handheld 		640 x 360		1.77
+Hero Promo Large 	355 x 190		1.87
+Editorial Promo 	116 x 62		1.88
+Hero Promo 			244 x 130		1.88
+Large Article 		500 x 266		1.88
+Hero_Wide_V4 		618 x 298		2.07
+
+Mini_Hero_V4 		322 x 114		2.82
+Hero Mid 			324 x 104		3.12
+Hero Wide 			500 x 160		3.125

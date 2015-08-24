@@ -28,6 +28,9 @@ def get_crop_props(asset_w, asset_h, crops, reqd_width, reqd_height):
 	# use it in a 'fuzzy style'
 	# also, ensure that we don't return crop dimensions that try to 
 	# crop outside the image - we'll have to wiggle it...
+#	import pdb
+#	pdb.set_trace()
+
 	for crop in crops:
 		# first convert the resize & crop dimensions to support the new size
 		change = float(reqd_width) / float(crop['width'])
@@ -39,12 +42,12 @@ def get_crop_props(asset_w, asset_h, crops, reqd_width, reqd_height):
 			continue
 
 		# find the center point:
-		centre_x = math.floor(crop['crop_left'] + (crop['width'] / 2))
-		centre_y = math.floor(crop['crop_top'] + (crop['height'] / 2))
+		centre_x = math.floor(crop['crop_left'] + (reqd_width / 2))
+		centre_y = math.floor(crop['crop_top'] + (reqd_height / 2))
 
 		# position the new dimensions around the center point
 		crop['crop_left'] = max(0, centre_x - round(reqd_width/2))
-		crop['crop_top'] = max(0, centre_x - round(reqd_height/2))
+		crop['crop_top'] = max(0, centre_y - round(reqd_height/2))
 
 		# adjust for boundaries of image
 		if crop['crop_left'] + reqd_width > crop['resize_width']:
