@@ -131,19 +131,11 @@ class Crop(models.Model):
         return self.crop_left + self.crop_spec.width
 
     @property
-    def resize_width(self):
-        return self.asset.width * self.zoom_ratio
-
-    @property
-    def resize_height(self):
-        return self.crop_spec.height * self.zoom_ratio
-
-    @property
     def aspect_ratio(self):
         return self.crop_spec.width / self.crop_spec.height
 
     def __unicode__(self):
-        return "%s (%s)" % (self.asset.title, self.crop_spec.name)
+        return "%d %s (%s)" % (self.pk, self.asset.title, self.crop_spec.name)
 
 
 class CropSize(models.Model):

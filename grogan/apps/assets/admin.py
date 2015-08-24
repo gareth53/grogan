@@ -36,7 +36,7 @@ class CropAdmin(admin.ModelAdmin):
             "all": ("/static/css/crop-admin.css",)
         }
 
-    list_display = ('__unicode__', 'resize_width', 'resize_height', 'crop_left', 'crop_top', 'aspect_ratio')
+    list_display = ('__unicode__', 'crop_left', 'crop_top', 'zoom_ratio', 'aspect_ratio')
 
 
 @admin.register(CropSize)

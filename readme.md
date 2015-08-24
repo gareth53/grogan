@@ -12,14 +12,18 @@ __Setup Steps__
 - venv/bin/pip install -r requirements.txt
 - venv/bin/python grogan/manage.py runserver
 
-__Creating a A User Via The Shell___
+__Creating A User Via The Shell___
 
 from django.contrib.auth.models import User
 u = User.objects.create_user(username='gareth')
 u.is_superuser = True
 u.is_staff = True
 u.set_password('password')
-u.save()
+u.save() 
+
+__Creating a SuperUser Management Command___
+
+python manage.py createsuperuser --username=gareth --email=gareth53@gmail.com
 
 __Development Tasks for Basic POC__
 
@@ -42,8 +46,13 @@ __Feature Backlog__
 
 - Better List View for Assets
 - Custom admin widgets for metadata
+- import sample metadata from Asset Manager
 - Simple search 
 - Advanced Search
+- Admin Flow
+	- Upload image (custom admin view)
+	- Edit main model details
+	- Do crops (custom admin view)
 
 __Areas For Further Thought & Definition__
 
