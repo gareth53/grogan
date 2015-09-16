@@ -149,5 +149,9 @@ class CropSize(models.Model):
     height = models.IntegerField()
     enabled = models.BooleanField(default=True)
 
+    @property
+    def dimensions(self):
+        return (self.width, self.height)
+
     def __unicode__(self):
         return "%s [%s x %s]" % (self.name, self.width, self.height)
