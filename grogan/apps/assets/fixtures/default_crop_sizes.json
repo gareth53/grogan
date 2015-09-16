@@ -1,0 +1,61 @@
+[  
+   {  
+      "fields":{  
+         "model":"cropsize",
+         "name":"crop size",
+         "app_label":"assets"
+      },
+      "model":"contenttypes.contenttype",
+      "pk":13
+   },
+   {  
+      "fields":{  
+         "width":200,
+         "enabled":true,
+         "name":"Small Square",
+         "height":200
+      },
+      "model":"assets.cropsize",
+      "pk":1
+   },
+   {  
+      "fields":{  
+         "width":600,
+         "enabled":true,
+         "name":"Large Square",
+         "height":600
+      },
+      "model":"assets.cropsize",
+      "pk":2
+   },
+   {  
+      "fields":{  
+         "width":352,
+         "enabled":true,
+         "name":"Small Landscape",
+         "height":244
+      },
+      "model":"assets.cropsize",
+      "pk":3
+   },
+   {  
+      "fields":{  
+         "width":500,
+         "enabled":true,
+         "name":"Large Landscape",
+         "height":282
+      },
+      "model":"assets.cropsize",
+      "pk":4
+   },
+   {  
+      "fields":{  
+         "width":500,
+         "enabled":true,
+         "name":"Widescreen",
+         "height":200
+      },
+      "model":"assets.cropsize",
+      "pk":5
+   },
+]
