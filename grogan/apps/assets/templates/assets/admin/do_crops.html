@@ -60,18 +60,24 @@ $(function() {
 
 <ul class="tabnav">
 {% for group in cropforms %}
-	<li><a href="#crop{{ group.cropsize.id }}"{% if forloop.first %} class="up"{% endif %}>{{ group.cropsize.name }}</a></li>
+	<li><a href="#crop{{ forloop.counter0 }}"{% if forloop.first %} class="up"{% endif %}>{{ group.cropsize.name }}</a></li>
 {% endfor %}
 </ul>
 
 <div class="tabcontent">
 	{% for group in cropforms %}
-	<div id="crop{{ group.cropsize.id }}"{% if forloop.first %} class="up"{% endif %}>
-{{ group.form }}
+	<div id="crop{{ forloop.counter0 }}"{% if forloop.first %} class="up"{% endif %}>
+
 		<h2>{{ group.cropsize.name }}</h2>
 		<p>{{ group.cropsize.width }} x {{ group.cropsize.height }}</p>
 		<p>{{ group.cropsize.help_text }}</p>
-		<img src="/media/{{ asset.image }}">
+
+		<form action=".">
+		{{ group.form }}
+		<input type="text" name="next_tab" value="#crop{{ forloop.counter }}">
+		<input type="submit" value="Save &amp; Next" name="_next">
+		<input type="submit" value="Save &amp; Done" name="_done">
+		</form>
 
 	</div>
 	{% endfor %}

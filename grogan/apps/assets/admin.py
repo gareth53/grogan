@@ -1,7 +1,10 @@
 import os
 import md5
+
 from django.conf import settings
 from django.contrib import admin
+from django.core.urlresolvers import reverse
+
 from .models import Asset, Category, Person, Location, Group, Crop, CropSize
 
 @admin.register(Category)
@@ -47,7 +50,16 @@ class CropSizeAdmin(admin.ModelAdmin):
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
 
-    list_display = ('title', 'upload_date', 'uploaded_by', 'do_not_use', 'file_hash')
+    def preview(img):
+        return '<img src="/api/1.0/assets/image/%d/?width=100&height=100">' % img.id
+
+    def edit_crops(img):
+        return '<a href="%s">edit crops</a>' % reverse('do_crops', args=[img.id])
+
+    preview.allow_tags = True
+    edit_crops.allow_tags = True
+
+    list_display = (preview, 'title', 'upload_date', edit_crops)
 
     fieldsets = (
         ('Basic Detail', {

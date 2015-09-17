@@ -9,7 +9,7 @@ from .forms import CropForm
 def do_crops(request, asset_id):
 	"""
 	"""
-	import pdb
+#	import pdb
 #	pdb.set_trace()
 	asset = Asset.objects.get(pk=asset_id)
 	cropsizes = CropSize.objects.filter(enabled=True)
