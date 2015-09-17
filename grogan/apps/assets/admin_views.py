@@ -9,38 +9,45 @@ from .forms import CropForm
 def do_crops(request, asset_id):
 	"""
 	"""
-#	import pdb
-#	pdb.set_trace()
-	asset = Asset.objects.get(pk=asset_id)
-	cropsizes = CropSize.objects.filter(enabled=True)
-	existing_crops = Crop.objects.filter(asset=asset)
-	cropforms = {}
-	for sz in cropsizes:
-		cropforms[sz.dimensions] = {
-				'cropsize': sz,
-				'form': CropForm(initial={
-					    'asset': asset,
-					    'crop_spec': sz,
-					    'crop_left': 0,
-					    'crop_top': 0,
-					    'zoom_ratio': 1
-					})
-			}
-	for crop in existing_crops:
-		cropforms[crop.crop_spec.dimensions] = {
-				'cropsize': crop.crop_spec,
-				'form': CropForm(instance=crop)
-			}
+	if request.POST:
+		pass
+		# process form
+		
+		# handle errors
+		
+		# redirect to the right place
+		# either the specified tab or to the Assets ListView
+	else:
+		asset = Asset.objects.get(pk=asset_id)
+		cropsizes = CropSize.objects.filter(enabled=True)
+		existing_crops = Crop.objects.filter(asset=asset)
+		cropforms = {}
+		for sz in cropsizes:
+			cropforms[sz.dimensions] = {
+					'cropsize': sz,
+					'form': CropForm(initial={
+						    'asset': asset,
+						    'crop_spec': sz,
+						    'crop_left': 0,
+						    'crop_top': 0,
+						    'zoom_ratio': 1
+						})
+				}
+		for crop in existing_crops:
+			cropforms[crop.crop_spec.dimensions] = {
+					'cropsize': crop.crop_spec,
+					'form': CropForm(instance=crop)
+				}
 
-	# order the forms based on dimensions
-	order = cropforms.keys()
-	order = sorted(order)
-	ordered_cropforms = [cropforms[key] for key in order]
+		# order the forms based on dimensions
+		order = cropforms.keys()
+		order = sorted(order)
+		ordered_cropforms = [cropforms[key] for key in order]
 
-	return render_to_response('assets/admin/do_crops.html', {
-	    'user': request.user,
-	    'asset': asset,
-	    'cropforms': ordered_cropforms
-	    },
-	    context_instance=RequestContext(request)
-	)
+		return render_to_response('assets/admin/do_crops.html', {
+		    'user': request.user,
+		    'asset': asset,
+		    'cropforms': ordered_cropforms
+		    },
+		    context_instance=RequestContext(request)
+		)

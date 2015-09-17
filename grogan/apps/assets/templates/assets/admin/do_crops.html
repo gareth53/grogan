@@ -41,16 +41,35 @@ div.tabcontent div.up {
 <script>
 // TABS
 $(function() {
-	$('ul.tabnav a').click(function(e){
-		var $btn = $(this)
+
+});
+
+var grogan = window.grogan||{};
+grogan.tabs = {
+	select: function($btn){
 		var selector = $btn.attr('href');
 		$('div.tabcontent div').hide();
 		$('div.tabcontent div' + selector).show();
 		$('ul.tabnav a').removeClass('up');
 		$btn.addClass('up');
-		e.preventDefault();
-	});
-});
+	},
+
+	init: function() {
+		// initialise buttons
+		$('ul.tabnav a').click(function(e){
+			var $btn = $(this)
+			grogan.tabs.select($btn);
+			e.preventDefault();
+		});
+
+		// respect URL
+		var hash = window.location.hash;
+		var $btn = $('ul.tabnav a[href=' + hash + ']');
+		if ($btn.length) {
+			grogan.tabs.select($btn);
+		}
+	}
+}
 </script>
 {% endblock %}
 
@@ -70,7 +89,6 @@ $(function() {
 
 		<h2>{{ group.cropsize.name }}</h2>
 		<p>{{ group.cropsize.width }} x {{ group.cropsize.height }}</p>
-		<p>{{ group.cropsize.help_text }}</p>
 
 		<form action=".">
 		{{ group.form }}

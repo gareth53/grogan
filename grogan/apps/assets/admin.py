@@ -54,7 +54,7 @@ class AssetAdmin(admin.ModelAdmin):
         return '<img src="/api/1.0/assets/image/%d/?width=100&height=100">' % img.id
 
     def edit_crops(img):
-        return '<a href="%s">edit crops</a>' % reverse('do_crops', args=[img.id])
+        return '<a href="%s" class="crop">edit crops</a>' % reverse('do_crops', args=[img.id])
 
     preview.allow_tags = True
     edit_crops.allow_tags = True
