@@ -47,6 +47,9 @@ $(function() {
 
 var grogan = window.grogan||{};
 grogan.tabs = {
+
+    initted: false,
+
 	select: function($btn){
 		var selector = $btn.attr('href');
 		$('div.tabcontent > div').hide();
@@ -55,7 +58,8 @@ grogan.tabs = {
 		$btn.addClass('up');
 	},
 
-	init: function() {
+	init: function(hash) {
+        if (this.initted) return;
 		// initialise buttons
 		$('ul.tabnav a').click(function(e){
 			var $btn = $(this)
@@ -63,16 +67,18 @@ grogan.tabs = {
 			e.preventDefault();
 		});
 
-		// respect URL
-		var hash = window.location.hash;
+		// respect has arg in URL query string (or hash)
+        // querystrign wins
+		var hash = (hash || window.location.hash);
         if (hash) {
     		var $btn = $('ul.tabnav a[href=' + hash + ']');
 			grogan.tabs.select($btn);
 		}
+        this.initted = true;
 	}
 }
 $(document).ready(function() {
-    grogan.tabs.init();
+    grogan.tabs.init({% if hash %}'#{{ hash }}'{% endif %});
 });
 </script>
 {% endblock %}
@@ -94,9 +100,10 @@ $(document).ready(function() {
 		<h2>{{ group.cropsize.name }}</h2>
 		<p>{{ group.cropsize.width }} x {{ group.cropsize.height }}</p>
 
-		<form action="." class="do_crop">
+		<form action="." class="do_crop" method="post">
     		{{ group.form }}
-    		<input type="text" name="next_tab" value="#crop{{ forloop.counter }}">
+            {% csrf_token %}
+    		<input type="text" name="next_tab" value="#crop{% if forloop.last %}1{% else%}{{ forloop.counter }}{% endif %}">
 
 
     		<input type="submit" value="Save &amp; Next" name="_next">
