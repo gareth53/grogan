@@ -10,6 +10,7 @@ __Setup Steps__
 
 - virtualenv --no-site-packages venv
 - venv/bin/pip install -r requirements.txt
+	
 - venv/bin/python grogan/manage.py runserver
 
 __Creating A User Via The Shell___
@@ -27,12 +28,12 @@ python manage.py createsuperuser --username=gareth --email=gareth53@gmail.com
 
 __Development Tasks for Basic POC__
 
-- basic models
-- basic admin
+- -basic models-
+- -basic admin-
 - custom admin to create crops
-- fixtures for crop sizes
+- -fixtures for crop sizes-
 - dynamic crop logic
-- API Endpoint
+- -API Endpoint-
 - Gusto Editorial Assets admin demo
 - Front end RWD Demo
 
