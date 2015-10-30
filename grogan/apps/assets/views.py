@@ -23,6 +23,8 @@ def asset_image(request, asset_id):
 	height = request.GET.get('height', None)
 	if not width and not height:
 		return HttpResponse(asset.image, content_type="image/jpeg")
+	width = width or height
+	height = height or width
 
 	reqd_width = float(width)
 	reqd_height = float(height)
