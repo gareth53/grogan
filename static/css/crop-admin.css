@@ -15,7 +15,8 @@
 	z-index: 1;
 	opacity:0.5;
 }
-#cropper {
+#cropper,
+.cropper {
   position: absolute;
   top: 0px;
   left: 0px;		/* TODO: starting points shoulod be calculated
