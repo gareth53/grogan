@@ -103,7 +103,7 @@ $(document).ready(function() {
 		<form action="." class="do_crop" method="post">
     		{{ group.form }}
             {% csrf_token %}
-    		<input type="text" name="next_tab" value="#crop{% if forloop.last %}1{% else%}{{ forloop.counter }}{% endif %}">
+    		<input type="text" name="next_tab" value="#crop{% if forloop.last %}0{% else%}{{ forloop.counter }}{% endif %}">
 
 
     		<input type="submit" value="Save &amp; Next" name="_next">
