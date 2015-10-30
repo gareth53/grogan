@@ -63,7 +63,7 @@ class Asset(models.Model):
     file_hash = models.CharField(max_length=32, blank=True, editable=False)
 
     # upload details
-    # REQUIRED? DO WE ALLOW FOR BLUK UPLOADS VIA AN API IN FUTURE?
+    # REQUIRED? DO WE ALLOW FOR BULK UPLOADS VIA AN API IN FUTURE?
     uploaded_by = models.ForeignKey(User, blank=True, null=True)
     upload_date = models.DateTimeField(auto_now_add=True, editable=False)
     updated_date = models.DateTimeField(auto_now=True, editable=False)

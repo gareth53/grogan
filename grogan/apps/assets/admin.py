@@ -4,6 +4,7 @@ import md5
 from django.conf import settings
 from django.contrib import admin
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 from .models import Asset, Category, Person, Location, Group, Crop, CropSize
 
@@ -61,9 +62,11 @@ class AssetAdmin(admin.ModelAdmin):
 
     list_display = (preview, 'title', 'upload_date', edit_crops)
 
+    readonly_fields = ('uploaded_by', 'upload_date')
+
     fieldsets = (
         ('Basic Detail', {
-            'fields': ('title', 'image', 'description')
+            'fields': ('title', 'image', 'description', 'uploaded_by', 'upload_date')
         }),
         ('Usages & Credits', {
             'fields': ('author', 'author_url', 'notes', 'do_not_use', 'licence')
@@ -83,7 +86,11 @@ class AssetAdmin(admin.ModelAdmin):
 
         # TODO - add uploader
         if request.method == "POST":
-            request.POST['uploaded_by'] = request.user.id
+            request.POST['uploaded_by'] = [request.user.id]
+            super(AssetAdmin, self).add_view(request, form_url, extra_context=extra_context)
+            # here comes a HACK! to get a demo out...
+            asset_id = Asset.objects.filter(title=request.POST.get('title')).order_by('-upload_date')[0].id
+            return HttpResponseRedirect(reverse('do_crops', args=[asset_id])) 
         # TODO - add file hash
         # TODO - check file hasn't already been uploaded
 #            request.POST['file_hash'] = md5.new(request.upload_handlers[0].file.read()).hexdigest()
