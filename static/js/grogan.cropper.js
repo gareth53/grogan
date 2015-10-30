@@ -36,6 +36,7 @@ grogan.cropper = {
                 this.$asset = $form.find('.displayed_image');
                 this.$zoomer = $form.find('.zoomer');
                 this.$zoom_reset = $form.find('.reset-zoom')
+
                 // form elements
                 this.$form_el__zoom_ratio = $form.find('#id_zoom_ratio');
                 this.$form_el__crop_spec = $form.find('#id_crop_spec');
@@ -166,18 +167,20 @@ grogan.cropper = {
 
             init_zoomer: function () {
                 var that = this;
-                this.$zoomer.min = this.get_min_zoom_width();
-                this.$zoomer.max = this.orig_width * 1.5;
-                this.$zoomer.value = this.$asset.width();
+
+                this.zoomer.min = this.get_min_zoom_width();
+                this.zoomer.max = this.orig_width * 1.5;
+                this.zoomer.value = this.$asset.width();
+
+                this.$zoomer.on('input', function() {
+                   that.zoom(this.value);
+                });
 
                 this.$zoom_reset.on('click', function () {
                     that.$zoomer.val(that.orig_ratio * that.orig_width);
                     that.update_zoomer();
                     that.zoom(that.orig_ratio * that.orig_width);
                     return false;
-                });
-                this.$zoomer.on('', function() {
-                    that.zoom($(this).value());
                 });
                 this.update_zoomer();
             },
@@ -212,7 +215,7 @@ grogan.cropper = {
 
             get_min_zoom_width: function () {
                 var min_zoom =  Math.min((this.$asset.width() / this.crop.width), (this.$asset.height() / this.crop.height));
-                return this.$asset.width() / min_zoom;
+                return Math.floor(this.$asset.width() / min_zoom);
             }
         };
 
