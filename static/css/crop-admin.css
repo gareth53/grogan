@@ -30,4 +30,19 @@
 
 .cropper-controls {
     text-align: left;
+    margin-bottom: 10px;
+}
+
+.cropper-controls input {
+    margin-right:10px;
+}
+
+.cropper-fieldset {
+    display: none;
+}
+
+.tabcontent h2 span {
+    font-size: 10px;
+    font-style: italic;
+    font-weight: normal;
 }

@@ -101,25 +101,22 @@ $(document).ready(function() {
 	{% for group in cropforms %}
 	<div id="crop{{ forloop.counter0 }}"{% if forloop.first %} class="up"{% endif %}>
 
-		<h2>{{ group.cropsize.name }}</h2>
-		<p>{{ group.cropsize.width }} x {{ group.cropsize.height }}</p>
+		<h2>{{ group.cropsize.name }} <span>[{{ group.cropsize.width }}px x {{ group.cropsize.height }}px]</span></h2>
 
 		<form action="." class="do_crop" method="post">
-    		{{ group.form }}
-            {% csrf_token %}
-    		<input type="text" name="next_tab" value="#crop{% if forloop.last %}0{% else%}{{ forloop.counter }}{% endif %}">
-
-
-    		<input type="submit" value="Save &amp; Next" name="_next">
-    		<input type="submit" value="Save &amp; Done" name="_done">
+    		{% csrf_token %}
+            <div class="cropper-fieldset">
+                {{ group.form }}
+    		    <input type="text" name="next_tab" value="#crop{% if forloop.last %}0{% else%}{{ forloop.counter }}{% endif %}">
+            </div>
 
             <div class="cropper-controls submit-row">
-                    
                 <label for="zoom">Zoom</label>
                 <input name="zoom" class="zoomer" type="range" min="100" max="1000" value="1000">
-
                 <input type="button" value="Reset" class="reset-zoom">
 
+                <input type="submit" value="Save &amp; Next" name="_next">
+                <input type="submit" value="Save &amp; Done" name="_done">
             </div>
 
             <div class="image_container" class="image_container">
