@@ -32,10 +32,13 @@ grogan.cropper = {
             },
 
             init: function ($form) {
+                if($form.hasClass('initialised')) {
+                    return;
+                }
                 this.$container = $form.find('.image_container');
                 this.$asset = $form.find('.displayed_image');
                 this.$zoomer = $form.find('.zoomer');
-                this.$zoom_reset = $form.find('.reset-zoom')
+                this.$zoom_reset = $form.find('.reset-zoom');
 
                 // form elements
                 this.$form_el__zoom_ratio = $form.find('#id_zoom_ratio');
@@ -57,6 +60,7 @@ grogan.cropper = {
                 this.set_image_dimensions();
                 this.init_crop();
                 this.init_zoomer();
+                $form.addClass('initialised');
             },
 
             set_image_dimensions: function () {
