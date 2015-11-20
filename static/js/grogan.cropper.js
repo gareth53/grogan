@@ -225,7 +225,7 @@ grogan.cropper = {
 };
 
 $(function() {
-    $('form.do_crop').each(function(){
+    $('form.do_crop:visible').each(function(){
         grogan.cropper.create($(this));
 	});
 });

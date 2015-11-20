@@ -56,6 +56,10 @@ grogan.tabs = {
 		$('div.tabcontent > div' + selector).show();
 		$('ul.tabnav a').removeClass('up');
 		$btn.addClass('up');
+
+        $('form.do_crop:visible').each(function(){
+            grogan.cropper.create($(this));
+        });
 	},
 
 	init: function(hash) {
