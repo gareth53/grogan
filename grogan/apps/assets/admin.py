@@ -52,7 +52,7 @@ class CropSizeAdmin(admin.ModelAdmin):
 class AssetAdmin(admin.ModelAdmin):
 
     def preview(img):
-        return '<img src="/api/1.0/assets/image/%d/?width=100&height=100">' % img.id
+        return '<img width="100" height="100" src="/api/1.0/assets/image/%d/?width=100&height=100">' % img.id
 
     def edit_crops(img):
         return '<a href="%s" class="crop">edit crops</a>' % reverse('do_crops', args=[img.id])
