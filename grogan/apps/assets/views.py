@@ -1,3 +1,5 @@
+import json
+from django.core import serializers
 from django.http import HttpResponse
 
 from .models import Asset
@@ -76,3 +78,11 @@ def asset_image(request, asset_id):
 	image.save(image_io, 'JPEG', quality=70)
 	image_io.seek(0)
 	return HttpResponse(image_io, content_type="image/jpeg")
+
+
+def asset_search(request):
+	query = request.GET.get('q', None)
+	if query:
+		assets = Asset.objects.filter(do_not_use=False, title__contains=query)
+		return HttpResponse(serializers.serialize('json', assets, fields=('title', 'id', 'description', 'alt_text')), content_type="application/javascript")
+	return HttpResponse(json.dumps([]), mimetype='application/javascript')
