@@ -30,6 +30,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'grogan.apps.assets',
+    'grogan.apps.demo',
 )
 
 MIDDLEWARE_CLASSES = (

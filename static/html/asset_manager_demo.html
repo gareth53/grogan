@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Asset Manager Demo</title>
+<style>
+textarea {
+	font-family:courier,sans-serif;
+	width:100%;
+}
+</style>
+</head.>
+<body>
+
+<h1>Asset Manager Demo</h1>
+
+<p><a id="link" href="http://asset-manager.int.thisisglobal.com/admin/asset_manager/asset/?type=image&extra=%5B%7B%22h%22%3A130%2C%22w%22%3A244%2C%22n%22%3A%22hero+promo%22%7D%5D">Search for image</a></p>
+
+<form>
+	<textarea id="return_val" rows="40">
+{
+   "h": 130,
+   "w": 244,",
+   "n": "hero promo"
+}
+	</textarea>
+</form>
+
+<script>
+
+document.domain = 'thisisglobal.com';
+
+var am_window;
+
+document.addEventListener('DOMContentLoaded', function() {
+	console.log("bo!")
+	var $link = document.getElementById('link');
+	$link.addEventListener('click', function(event) {
+		am_window = window.open($link.href, '', 'width=800,height=600,statusbar,location');
+		event.preventDefault();
+		return false;
+	});
+});
+var asset_callback = function(data) {
+	console.log("CALLBACK!")
+	$textarea = document.getElementById('return_val');
+	$textarea.innerHTML = JSON.stringify(data, null, 2);
+	am_window.close();
+}
+
+</script>
+</body>
+</html>

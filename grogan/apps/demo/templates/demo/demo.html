@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Grogan Demo</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="author" content="Gareth Senior">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style type="text/css">
+</style>
+</head>
+<body class="">
+<h1>Grogan Demo</h1>
+
+<p>Specified Image Dimensions: {{ x }} x {{ y }}</p>
+
+<ul>
+	{% for crop in dims %}
+	<li>
+		{% if crop.0 == x and crop.1 == y %}
+			{{ crop.0 }} x {{ crop.1 }}
+		{% else %}
+			<a href="./?width={{ crop.0 }}&height={{ crop.1 }}">{{ crop.0 }} x {{ crop.1 }}</a>
+		{% endif %}
+	</li>
+	{% endfor %}
+</ul>
+
+<p>
+	<code>/api/1.0/assets/image/{{ asset_id }}/?width={{ x }}&height={{ y }}</code>
+</p>
+
+<p><img src="/api/1.0/assets/image/{{ asset_id }}/?width={{ x }}&height={{ y }}" /></p>
+
+</body>
+</html>
