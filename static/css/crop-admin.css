@@ -4,6 +4,11 @@
 }
 .image_container img {
 	z-index:0;
+    user-drag: none; 
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
 }
 .image_mask {
 	background: #999;
@@ -45,4 +50,13 @@
     font-size: 10px;
     font-style: italic;
     font-weight: normal;
+}
+
+.focus_area {
+    border: 1px solid red;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
 }

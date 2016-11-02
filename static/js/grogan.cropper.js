@@ -161,8 +161,11 @@ grogan.cropper = {
                 // update form values
                 this.$form_el__crop_left.val(left);
                 this.$form_el__crop_top.val(top);
+                
+                var pos_left = left - 1;
+                var pos_top = top - 1;
 
-                this.$cropper.css('background-position', -left + 'px ' + -top + 'px');
+                this.$cropper.css('background-position', -pos_left + 'px ' + -pos_top + 'px');
 
                 if (zoom_w && zoom_h) {
                     this.$cropper.css('background-size', zoom_w + 'px ' + zoom_h + 'px');

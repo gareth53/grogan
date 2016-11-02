@@ -6,7 +6,7 @@ window.$ = django.jQuery;
  */
 
 
-$(function() {
+$(function () {
     'use strict';
     window.gusto = window.gusto || {};
     gusto.cropper = {
@@ -31,6 +31,8 @@ $(function() {
             max_y: 0
         },
 
+        areas: {},
+
         init: function () {
             this.orig_width = this.$asset.width();
             this.orig_height = this.$asset.height();
@@ -41,11 +43,130 @@ $(function() {
 
             this.$cropper = $('<div id="cropper" style="background-image:url(' + this.$asset.attr("src") + ');left:0;top:0;"></div>');
 
-            this.$container.append('<div class="image_mask"></div>').append(this.$cropper);
+            // this.$container.append('<div class="image_mask"></div>').append(this.$cropper);
 
             this.set_image_dimensions();
             this.init_crop();
             this.init_zoomer();
+
+            this.init_hack();
+        },
+
+        init_hack: function () {
+            var that = this;
+            this.drag = false;
+            this.on_focus = false;
+            this.current_focus = {};
+
+            this.$container.on('mousedown', function (e) {
+                if (that.is_left_button(e)) {
+                    that.on_focus = that.is_on_focus_area(e);
+                    that.drag = true;
+                    if (!that.on_focus) {
+                        that.create_focus_area(that.get_mouse_pos_in_img(e));
+                    }
+                }
+            });
+
+            this.$container.on('mousemove', function (e) {
+                if (that.drag) {
+                    var pos = that.get_mouse_pos_in_img(e);
+                    if (that.on_focus) {
+                        that.move_focus_area(pos)
+                    } else {
+                        that.update_focus_area_dims(pos);
+                    }                    
+                }
+            });
+
+            this.$container.on('mouseup', function (e) {
+                that.drag = false;
+                that.on_focus = false;
+                that.current_focus = '';
+                console.log(that.areas);
+            });
+        },
+
+        move_focus_area: function (pos) {
+            console.log('move', pos);
+        },
+
+
+
+        is_on_focus_area: function (e) {
+            var that = this;
+            var on_focus = false;
+            var pos = this.get_mouse_pos_in_img(e);
+            for (var key in this.areas) {
+                if ((pos.x >= that.areas[key].x) && (pos.x <= (that.areas[key].x + that.areas[key].width)) && (pos.y >= that.areas[key].y) && (pos.y <= (that.areas[key].y + that.areas[key].height))) {
+                    that.current_focus = that.areas[key];
+                    return true;
+                }
+            }
+            this.current_focus = {};
+            return on_focus
+        },
+
+        is_left_button: function (e) {
+            return e.which === 1;
+        },
+
+        get_random_colour: function (format) {
+            var color = "";
+            if (format === 'hex') {
+                var letters = '0123456789ABCDEF';
+                color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+            } else {
+                color = "";
+                var max = 255;
+                var min = 0;
+                for (var i = 0; i < 3; i++) {
+                    if (i != 0) color += ",";
+                    color += (Math.floor(Math.random() * (max - min) + min));
+                }
+            }
+            return color;
+        },
+
+        create_focus_area: function (pos) {
+            var that = this;
+            var next_focus = $('.focus_area').length + 1;
+            var class_name = 'focus_' + next_focus;
+            this.$container.append('<div class="focus_area ' + class_name + '"></div>');
+            var $focus = $('.focus_' + next_focus, this.$container);
+            var colour = this.get_random_colour();
+            var focus_obj = {};
+            $focus.css({
+                'left': pos.x,
+                'top': pos.y,
+                'border-color': 'rgb(' + colour + ')',
+                'background-color': 'rgba(' + colour + ', 0.2)'
+            });
+            console.log(pos.y)
+            focus_obj['x'] = pos.x;
+            focus_obj['y'] = pos.y;
+            focus_obj['colour'] = colour;
+            
+            this.areas[class_name] = focus_obj;
+            this.current_focus = class_name;
+            // console.log("created ", focus_obj, this.areas);
+        },
+
+        update_focus_area_dims: function (pos) {
+            var data = this.areas[this.current_focus];
+            // console.log(data)
+            var $focus = $("." + this.current_focus, this.$container);
+            var new_width = pos.x - data['x'];
+            var new_height = pos.y - data['y'];
+            $focus.css({
+                'width': new_width,
+                'height': new_height
+            });
+            this.areas[this.current_focus]['width'] = new_width;
+            this.areas[this.current_focus]['height'] = new_height;
         },
 
         set_image_dimensions: function () {
@@ -83,8 +204,8 @@ $(function() {
 
             this.dragging = false;
 
-            this.$cropper.on('mousedown', function(e) {
-                var pos =  that.get_mouse_pos_in_img(e),
+            this.$cropper.on('mousedown', function (e) {
+                var pos = that.get_mouse_pos_in_img(e),
                     now_left = parseInt(that.$cropper.css('left'), 10),
                     now_top = parseInt(that.$cropper.css('top'), 10);
 
@@ -114,12 +235,12 @@ $(function() {
                 that.init_crop();
             });
 
-            this.move_cropper($('#id_crop_left').val(), $('#id_crop_top').val(), this.orig_width * $('#id_zoom_ratio').val() , this.orig_height * $('#id_zoom_ratio').val());
+            this.move_cropper($('#id_crop_left').val(), $('#id_crop_top').val(), this.orig_width * $('#id_zoom_ratio').val(), this.orig_height * $('#id_zoom_ratio').val());
         },
 
         get_mouse_pos_in_img: function (e) {
-            var posX = e.pageX,
-                posY = e.pageY,
+            var posX = e.clientX,
+                posY = e.clientY,
                 img_coods = this.$asset[0].getBoundingClientRect();
 
             // TODO respect scroll position
@@ -147,7 +268,7 @@ $(function() {
             $('#id_crop_left').val(left);
             $('#id_crop_top').val(top);
 
-            this.$cropper.css('background-position', -left + 'px ' + -top + 'px');
+            this.$cropper.css('background-position', ((-left) - 1) + 'px ' + ((-top) - 1) + 'px');
 
             if (zoom_w && zoom_h) {
                 this.$cropper.css('background-size', zoom_w + 'px ' + zoom_h + 'px');
@@ -172,8 +293,8 @@ $(function() {
 
         update_zoomer: function () {
             this.$zoomer.attr('min', this.zoomer.min)
-                        .attr('max', this.zoomer.max)
-                        .attr('value', this.zoomer.value);
+                .attr('max', this.zoomer.max)
+                .attr('value', this.zoomer.value);
         },
 
         zoom: function (val) {
@@ -189,7 +310,7 @@ $(function() {
             this.move_cropper(undefined, undefined, width, height);
         },
 
-        calculate_crop_limits: function(zoom_w, zoom_h) {
+        calculate_crop_limits: function (zoom_w, zoom_h) {
             this.disp_width = zoom_w;
             this.disp_height = zoom_h;
 
@@ -199,7 +320,7 @@ $(function() {
         },
 
         get_min_zoom_width: function () {
-            var min_zoom =  Math.min((this.$asset.width() / this.crop.width), (this.$asset.height() / this.crop.height));
+            var min_zoom = Math.min((this.$asset.width() / this.crop.width), (this.$asset.height() / this.crop.height));
             return this.$asset.width() / min_zoom;
         }
     };
